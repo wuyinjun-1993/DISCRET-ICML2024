@@ -1,0 +1,35 @@
+model:
+  enrl:
+    latent_size: 30
+    hidden_size: 30
+  dragonnet:
+    latent_size: 30
+    hidden_size: 200
+  nam:
+    latent_size: 30
+    hidden_size: 30
+  drnet:
+    h: 1
+  tarnet:
+    h: 1
+    hidden_size: 30
+  vcnet:
+    h: 1
+  transtee:
+    latent_size: 30
+    hidden_size: 64
+    cov_dim: 100
+  ours:
+    latent_size: 50
+    hidden_size: 64
+  
+rl:
+  dqn:
+    mem_sample_size: 2
+    replay_memory_capacity: 5000
+    epsilon: 0.8
+    epsilon_falloff: 0.9
+    gamma: 0.999
+    target_update: 20
+    discretize_feat_value_count: 100
+    reward_coeff: 1

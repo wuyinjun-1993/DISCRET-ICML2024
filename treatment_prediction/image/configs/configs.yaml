@@ -1,0 +1,40 @@
+model:
+  ours:
+    latent_size: 20
+  prototype:
+    latent_size: 64
+    hidden_size: 64
+    num_prototypes: 10
+  nam:
+    latent_size: 30
+    hidden_size: 30
+  dragonnet:
+    latent_size: 30
+    hidden_size: 30
+  enrl:
+    latent_size: 30
+    hidden_size: 30
+  transtee:
+    latent_size: 30
+    hidden_size: 64
+    cov_dim: 100
+  TransTEE_tab:
+    latent_size: 30
+    hidden_size: 64
+    cov_dim: 100
+  drnet:
+    h: 1
+  tarnet:
+    h: 1
+    hidden_size: 30
+  vcnet:
+    h: 1
+rl:
+  dqn:
+    mem_sample_size: 2
+    replay_memory_capacity: 5000
+    epsilon: 0.2
+    epsilon_falloff: 0.9
+    gamma: 0.999
+    target_update: 20
+    discretize_feat_value_count: 50

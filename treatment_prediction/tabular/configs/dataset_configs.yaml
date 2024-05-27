@@ -1,0 +1,5 @@
+tcga:
+  treatment_selection_bias: 2.0
+  dosage_selection_bias: 2.0
+  validation_fraction: 0.1
+  test_fraction: 0.2
