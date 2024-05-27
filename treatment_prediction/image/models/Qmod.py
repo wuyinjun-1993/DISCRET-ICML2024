@@ -1655,8 +1655,8 @@ class QNet_rl:
                     if all_neg_outcome_pred_tensor is not None:
                         all_neg_outcome_pred_tensor = transform_outcome_by_rescale_back(test_loader.dataset, all_neg_outcome_pred_tensor)
             all_treatment_arr_np = all_gt_treatment_tensor.view(-1).numpy()
-            
-            all_pred_treatment_arr_full_d = (all_treatment_pred_tensor > 0.5).cpu().type(torch.long).view(-1).numpy()
+            all_treatment_pred_tensor = all_treatment_pred_tensor.cpu()
+            all_pred_treatment_arr_full_d = (all_treatment_pred_tensor > 0.5).type(torch.long).view(-1).numpy()
             treatment_acc = np.mean(all_treatment_arr_np == all_pred_treatment_arr_full_d)
             if len(np.unique(all_treatment_arr_np)) <= 1:
                 treatment_auc = 0
@@ -1800,8 +1800,8 @@ class QNet_rl:
                 # ids, origin_X, A, Y, count_Y, X, origin_all_other_pats_ls, (text_id_ls, text_mask_ls, text_len_ls) = batch
                 # (idx, sample_idx, origin_all_other_pats_ls, X_pd_ls, text_id_ls, text_mask_ls, text_len_ls, X), Y, A = batch
 
-                # Y = Y.to(self.device)
-                # A = A.to(self.device)
+                Y = Y.to(self.device)
+                A = A.to(self.device)
                 origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
                 all_other_pats_ls = self.copy_data_in_database(origin_all_other_pats_ls)
                 
@@ -1820,7 +1820,7 @@ class QNet_rl:
                 all_transformed_expr_ls = []
 
                 
-                prev_reward = torch.zeros([len(A), self.topk_act, 2])
+                prev_reward = torch.zeros([len(A), self.topk_act, 2]).to(self.device)
                 
                 for arr_idx in range(self.program_max_len):
                     init = (len(program) == 0)
@@ -1841,12 +1841,12 @@ class QNet_rl:
                     loss = self.dqn.optimize_model_ls0()
                     
                     if done:
-                        all_treatment_pred.append(treatment_pred)
-                        all_outcome_pred.append(outcome_pred)
-                        all_gt_treatment.append(A)
-                        all_gt_outcome.append(Y)
+                        all_treatment_pred.append(treatment_pred.cpu())
+                        all_outcome_pred.append(outcome_pred.cpu())
+                        all_gt_treatment.append(A.cpu())
+                        all_gt_outcome.append(Y.cpu())
                         if count_Y is not None:
-                            all_gt_count_outcome.append(count_Y)
+                            all_gt_count_outcome.append(count_Y.cpu())
 
                     program = next_program
                     program_str = next_program_str
