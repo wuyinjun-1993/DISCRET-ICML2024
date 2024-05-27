@@ -431,6 +431,8 @@ def construct_dataset_main(args):
        
     train_dataset, valid_dataset, test_dataset, feat_range_mappings = create_dataset(args.dataset_name, tokenizer, df, train_df, valid_df, test_df, synthetic_lang, id_attr, outcome_attr, treatment_attr, text_attr, synthetic_lang.DROP_FEATS, count_outcome_attr=count_outcome_attr, classification=args.classification)
     
-    lang = set_lang_data(lang, train_dataset, gpu_db=args.gpu_db)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    lang = set_lang_data(lang, train_dataset, device=device)
     
     return train_dataset, valid_dataset, test_dataset, feat_range_mappings, id_attr, outcome_attr, treatment_attr, text_attr, count_outcome_attr, lang

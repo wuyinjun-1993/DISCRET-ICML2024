@@ -27,7 +27,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 from treatment_prediction.create_language import Language
 import synthetic_lang
 from simulation import run_simulation
-from featurization import convert_image_to_features, transform_text_to_tokens
 from featurization import k_means
 from treatment_prediction.utils_treatment import set_lang_data
 from image_data_utils.image_loader import CausalDataset
@@ -592,9 +591,7 @@ def construct_dataset_main(args, cluster_count=20):
         id_attr = "id"
         df.rename(columns={"index": id_attr}, inplace=True)
         df.to_csv(full_df_file_name)
-    
-    # df, tokenizer = convert_image_to_features(args, causal_dataset)
-    
+        
     nan_indexes = df.index[df.isna().any(axis=1)].tolist()
 
     df.drop(nan_indexes, inplace=True)
@@ -622,7 +619,9 @@ def construct_dataset_main(args, cluster_count=20):
        
     train_dataset, valid_dataset, test_dataset, feat_range_mappings = create_dataset(args.dataset_name, image_data, train_image_data, valid_image_data, test_image_data, df, train_df, valid_df, test_df, synthetic_lang, id_attr, outcome_attr, treatment_attr, synthetic_lang.DROP_FEATS, count_outcome_attr=count_outcome_attr, classification=False)
     
-    lang = set_lang_data(lang, train_dataset)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    lang = set_lang_data(lang, train_dataset, device=device)
     
     return train_dataset, valid_dataset, test_dataset, feat_range_mappings, id_attr, outcome_attr, count_outcome_attr, treatment_attr, lang
 

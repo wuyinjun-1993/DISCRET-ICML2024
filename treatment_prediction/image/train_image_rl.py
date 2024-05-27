@@ -101,7 +101,7 @@ if __name__ == "__main__":
                                 test_dataset.transformed_features, test_dataset.treatment_array, test_dataset.dose_array, test_dataset.outcome_array, 
                                  train_dataset, test_dataset, train_dataset.count_outcome_array, valid_dataset.count_outcome_array, test_dataset.count_outcome_array)
         exit(1)
-    rl_config, model_config = load_configs(args, root_dir=root_dir)
+    rl_config, model_config, backbone_model_config = load_configs(args, root_dir=root_dir)
     # torch.autograd.set_detect_anomaly(True)
     # id_attr, outcome_attr, treatment_attr, lang, learning_rate, gamma, dropout_p, feat_range_mappings, program_max_len, replay_memory_capacity, rl_config, model_config, numeric_count, category_count, category_sum_count, args, topk_act=1, num_labels=2, a_weight=1.0, y_weight=1.0, mlm_weight=1.0,
     mod = QNet_rl(train_dataset, valid_dataset, test_dataset, id_attr, outcome_attr, treatment_attr, lang, args.lr, rl_config["gamma"], 

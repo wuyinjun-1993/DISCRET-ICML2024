@@ -1254,7 +1254,7 @@ class dql_algorithm:
         outcome_regression = True
         self.classification = not outcome_regression
         self.args = args
-        self.gpu_db = args.gpu_db
+        # self.gpu_db = args.gpu_db
         # self.memory = ReplayMemory(replay_memory_capacity)
 
     def obtain_binary_treatment_reward(self, treatment_pred, outcome_pred, A, Y, epoch):
@@ -1367,17 +1367,17 @@ class dql_algorithm:
         # program_col_ls = [[[] for _ in range(self.topk_act)] for _ in range(len(X_pd_ls))]
         program_str = []
         program_col_ls = []
-        if self.gpu_db:
-            origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+        # if self.gpu_db:
+        origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
         all_other_pats_ls = self.copy_data_in_database2(origin_all_other_pats_ls)
-        if self.gpu_db:
-            stopping_conds = torch.ones_like(A).bool()
-        else:   
-            stopping_conds = torch.ones_like(A.cpu()).bool()
+        # if self.gpu_db:
+        stopping_conds = torch.ones_like(A).bool().to(self.device)
+        # else:   
+        #     stopping_conds = torch.ones_like(A.cpu()).bool()
         
         outcome_pred_curr_batch=torch.zeros(len(A))
-        if self.gpu_db:
-            outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
+        # if self.gpu_db:
+        outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
         
         for arr_idx in range(self.program_max_len):
             init = (len(program) == 0)
@@ -1988,21 +1988,21 @@ class dql_algorithm:
                 _, reg_pred, reg_full_pred = res
             else:
                 _, reg_pred = res
-            if not self.gpu_db:
-                reg_pred = reg_pred.detach().cpu()
-            else:
-                reg_pred = reg_pred.detach()
+            # if not self.gpu_db:
+            # reg_pred = reg_pred.detach().cpu()
+            # else:
+            reg_pred = reg_pred.detach()
             if reg_full_pred is not None:
-                if not self.gpu_db:
-                    reg_full_pred = reg_full_pred.detach().cpu()
-                else:
-                    reg_full_pred = reg_full_pred.detach()
+                # if not self.gpu_db:
+                    # reg_full_pred = reg_full_pred.detach().cpu()
+                # else:
+                reg_full_pred = reg_full_pred.detach()
         else:
             _, reg_pred =  self.dqn.policy_net.backbone_full_model(torch.ones_like(X_encoding), A, D, test=test, hidden=X_encoding)
-            if not self.gpu_db:
-                reg_pred = reg_pred.detach().cpu()
-            else:
-                reg_pred = reg_pred.detach()
+            # if not self.gpu_db:
+                # reg_pred = reg_pred.detach().cpu()
+            # else:
+            reg_pred = reg_pred.detach()
             
         return reg_pred, reg_full_pred
 
@@ -2046,8 +2046,8 @@ class dql_algorithm:
                 if D is not None:
                     D = D.to(self.device)
                     
-                if self.gpu_db:
-                    origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+                # if self.gpu_db:
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
             
                 all_other_pats_ls = self.copy_data_in_database2(origin_all_other_pats_ls)
                 
@@ -2072,8 +2072,8 @@ class dql_algorithm:
                 outcome_pred_curr_batch=torch.zeros(len(A))
                 outcome_pred_curr_batch[:] = torch.tensor(float('nan'))
                 
-                if self.gpu_db:
-                    outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
+                # if self.gpu_db:
+                outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
                 rule_outcome_pred_curr_batch = torch.zeros_like(outcome_pred_curr_batch)
                 # reg_outcome_pred_curr_batch = torch.zeros(len(A))
                 if compute_ate:    
@@ -2083,15 +2083,15 @@ class dql_algorithm:
                     neg_outcome_curr_batch[:] = torch.tensor(float('nan'))
                     # reg_pos_outcome_curr_batch=torch.zeros(len(A))
                     # reg_neg_outcome_curr_batch=torch.zeros(len(A))
-                    if self.gpu_db:
-                        pos_outcome_curr_batch = pos_outcome_curr_batch.to(self.device)
-                        neg_outcome_curr_batch = neg_outcome_curr_batch.to(self.device)
+                    # if self.gpu_db:
+                    pos_outcome_curr_batch = pos_outcome_curr_batch.to(self.device)
+                    neg_outcome_curr_batch = neg_outcome_curr_batch.to(self.device)
                     rule_pos_outcome_curr_batch = torch.zeros_like(pos_outcome_curr_batch)
                     rule_neg_outcome_curr_batch = torch.zeros_like(neg_outcome_curr_batch)
-                if self.gpu_db:
-                    stopping_conds = torch.ones_like(A).bool()
-                else:   
-                    stopping_conds = torch.ones_like(A.cpu()).bool()
+                # if self.gpu_db:
+                stopping_conds = torch.ones_like(A).bool().to(self.device)
+                # else:   
+                #     stopping_conds = torch.ones_like(A.cpu()).bool()
                 for arr_idx in range(self.program_max_len):
                     init = (len(program) == 0)
                     done = (arr_idx == self.program_max_len - 1)
@@ -2291,8 +2291,8 @@ class dql_algorithm:
                     A = A.to(self.device)
                     if D is not None:
                         D = D.to(self.device)
-                    if self.gpu_db:
-                        origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+                    # if self.gpu_db:
+                    origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
                     
                     all_other_pats_ls = self.copy_data_in_database2(origin_all_other_pats_ls)
                     
@@ -2319,13 +2319,13 @@ class dql_algorithm:
                     # else:
                     X_encode = self.dqn.policy_net.backbone_model(X)
                     outcome_pred_curr_batch=torch.zeros(len(A))
-                    if self.gpu_db:
-                        stopping_conds = torch.ones_like(A).bool()
-                    else:   
-                        stopping_conds = torch.ones_like(A.cpu()).bool()
+                    # if self.gpu_db:
+                    stopping_conds = torch.ones_like(A).bool().to(self.device)
+                    # else:   
+                    #     stopping_conds = torch.ones_like(A.cpu()).bool()
                     
-                    if self.gpu_db:
-                        outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
+                    # if self.gpu_db:
+                    outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
                     for arr_idx in range(self.program_max_len):
                         init = (len(program) == 0)
                         done = (arr_idx == self.program_max_len - 1)
@@ -2553,8 +2553,8 @@ class dql_algorithm:
                 # text_len_ls = text_len_ls.to(self.device)
                 # Y = Y.to(self.device)
                 # A = A.to(self.device)
-                if self.gpu_db:
-                    origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+                # if self.gpu_db:
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
                 all_other_pats_ls = self.copy_data_in_database2(origin_all_other_pats_ls)
                 
                 program = []

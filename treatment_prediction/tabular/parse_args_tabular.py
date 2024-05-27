@@ -67,7 +67,7 @@ def parse_args():
     # backbone
     # fix_backbone
     parser.add_argument('--fix_backbone', action = "store_true", default = False)
-    parser.add_argument('--gpu_db', action = "store_true", default = False)
+    # parser.add_argument('--gpu_db', action = "store_true", default = False)
     # eval
     parser.add_argument('--eval', action = "store_true", default = False)
     parser.add_argument("--backbone", type=str, default="TransTEE", help="std of the initial phi table")

@@ -41,10 +41,9 @@ import torch.nn.functional as F
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-from mortalty_prediction.rl_models.enc_dec import pred_probs_key, pred_Q_key, pred_v_key, prev_prog_key, col_id_key, select_num_feat_key, col_Q_key, col_probs_key, op_key, op_id_key, col_key, outbound_key, min_Q_val, mask_atom_representation_for_op0, mask_atom_representation1, down_weight_removed_feats
-from mortalty_prediction.rl_models.enc_dec import forward_main0_opt, create_deep_set_net_for_programs, TokenNetwork3, TokenNetwork2, determine_pred_ids_by_val, atom_to_vector_ls0_main
-from mortalty_prediction.full_experiments.trainer import process_curr_atoms, integrate_curr_program_with_prev_programs, process_curr_atoms0
-from mortalty_prediction.rl_models.rl_algorithm import ReplayMemory
+from rl_models.enc_dec import pred_probs_key, pred_Q_key, pred_v_key, prev_prog_key, col_id_key, select_num_feat_key, col_Q_key, min_Q_val
+from rl_models.enc_dec import forward_main0_opt, create_deep_set_net_for_programs, TokenNetwork3, atom_to_vector_ls0_main, TokenNetwork2
+from rl_models.rl_algorithm import ReplayMemory, process_curr_atoms0
 from nlp_data_utils.nlp_dataset import NLP_Dataset
 
 from collections import namedtuple, deque
@@ -1531,7 +1530,7 @@ class QNet_rl:
         self.method_two = args.method_two
         self.method_three = args.method_three
         self.has_dose = False
-        self.gpu_db = args.gpu_db
+        # self.gpu_db = args.gpu_db
         self.num_class = len(lang.outcome_array.unique())
         # self.memory = ReplayMemory(replay_memory_capacity)
 
@@ -1636,8 +1635,8 @@ class QNet_rl:
                 Y = Y.to(self.device)
                 A = A.to(self.device)
             
-                if self.gpu_db:
-                    origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+                # if self.gpu_db:
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
 
                 all_other_pats_ls = self.copy_data_in_database(origin_all_other_pats_ls)
                 
@@ -1660,20 +1659,20 @@ class QNet_rl:
                 # prev_reward = torch.zeros([len(A), 2])
                 
                 outcome_pred_curr_batch=torch.zeros([len(A), self.num_class])
-                if self.gpu_db:
-                    outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
+                # if self.gpu_db:
+                outcome_pred_curr_batch = outcome_pred_curr_batch.to(self.device)
                 # reg_outcome_pred_curr_batch = torch.zeros(len(A))
                 pos_outcome_curr_batch=torch.zeros([len(A), self.num_class])
                 neg_outcome_curr_batch=torch.zeros([len(A), self.num_class])
                 # reg_pos_outcome_curr_batch=torch.zeros(len(A))
                 # reg_neg_outcome_curr_batch=torch.zeros(len(A))
-                if self.gpu_db:
-                    pos_outcome_curr_batch = pos_outcome_curr_batch.to(self.device)
-                    neg_outcome_curr_batch = neg_outcome_curr_batch.to(self.device)
-                if self.gpu_db:
-                    stopping_conds = torch.ones_like(A).bool()
-                else:   
-                    stopping_conds = torch.ones_like(A.cpu()).bool()
+                # if self.gpu_db:
+                pos_outcome_curr_batch = pos_outcome_curr_batch.to(self.device)
+                neg_outcome_curr_batch = neg_outcome_curr_batch.to(self.device)
+                # if self.gpu_db:
+                stopping_conds = torch.ones_like(A).bool().to(self.device)
+                # else:   
+                #     stopping_conds = torch.ones_like(A.cpu()).bool()
 
                 for arr_idx in range(self.program_max_len):
                     init = (len(program) == 0)
@@ -1901,8 +1900,8 @@ class QNet_rl:
                 Y = Y.to(self.device)
                 A = A.to(self.device)
             
-                if self.gpu_db:
-                    origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
+                # if self.gpu_db:
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
 
                 all_other_pats_ls = self.copy_data_in_database(origin_all_other_pats_ls)
                 
@@ -2167,7 +2166,8 @@ class QNet_rl_baseline:
             # hparams = {'batch_size': 200, 'dropout': 0.1, 'bert_state_dict': None, 'label_size': 5, 'name': 'POMS_F'}
             # self.model = TransTEE_nlp(hparams)
             params = {'num_features': numeric_count+category_sum_count, 'num_treatments': args.num_treatments,
-            'h_dim': model_config["hidden_size"], 'cov_dim':model_config["cov_dim"]}
+            # 'h_dim': model_config["hidden_size"], 'cov_dim':model_config["cov_dim"]}
+            'h_dim': model_config["hidden_size"], 'cov_dim':numeric_count+category_sum_count}
             self.model = TransTEE(params, has_dose=False, cont_treatment = False, num_class= num_class )
 
         
@@ -2177,9 +2177,9 @@ class QNet_rl_baseline:
             if args.backbone.lower() == "transtee":
                 print("start loading transtee backbone")
                 # if not args.cont_treatment and args.has_dose:
-                cov_dim = backbone_model_config["cov_dim"]
+                #     cov_dim = backbone_model_config["cov_dim"]
                 # else:
-                #     cov_dim = numeric_count+category_sum_count
+                cov_dim = numeric_count+category_sum_count
                 
                 params = {'num_features': numeric_count+category_sum_count, 'num_treatments': args.num_treatments,
                 'h_dim': backbone_model_config["hidden_size"], 'cov_dim':cov_dim}

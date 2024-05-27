@@ -839,7 +839,7 @@ def load_synthetic_data0_2(data_folder, dataset_id, feature_count=12,sample_coun
 
     
 class tabular_Dataset(Dataset):
-    def __init__(self, data, drop_cols, lang, id_attr, outcome_attr, treatment_attr, cat_unique_count_mappings=None, cat_unique_vals_id_mappings=None, cat_id_unique_vals_mappings=None, other_data=None, normalize_y=True, y_scaler=None, count_outcome_attr=None, dose_attr=None, treatment_graph=None,gpu_db=False):
+    def __init__(self, data, drop_cols, lang, id_attr, outcome_attr, treatment_attr, cat_unique_count_mappings=None, cat_unique_vals_id_mappings=None, cat_id_unique_vals_mappings=None, other_data=None, normalize_y=True, y_scaler=None, count_outcome_attr=None, dose_attr=None, treatment_graph=None):
         self.data = data
         self.drop_cols = drop_cols
         self.id_attr, self.outcome_attr, self.treatment_attr, self.count_outcome_attr, self.dose_attr = id_attr, outcome_attr, treatment_attr, count_outcome_attr, dose_attr
@@ -847,10 +847,10 @@ class tabular_Dataset(Dataset):
         self.patient_ids = self.data[id_attr].unique().tolist()
         self.lang = lang
         self.other_data = other_data
-        self.gpu_db = gpu_db
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        if gpu_db and self.other_data is not None:
-            self.other_data = self.other_data.cuda()
+        if self.other_data is not None:
+            self.other_data = self.other_data.to(self.device)
         self.cat_cols = list(set(self.lang.CAT_FEATS))
         self.cat_cols.sort()
         self.num_cols = [col for col in data.columns if col not in self.lang.CAT_FEATS and not col == id_attr and not col in drop_cols and not col == outcome_attr and not col == treatment_attr and not col == outcome_attr and not col == count_outcome_attr and not col == dose_attr] 

@@ -2,6 +2,11 @@ Code for the paper:
 > Yinjun Wu, Mayank Keoliya, Kan Chen, Neelay Velingker, Ziyang Li, Emily J Getzen, Qi Long, Mayur Naik, Ravi B Parikh, Eric Wong, "DISCRET: Synthesizing Faithful Explanations For Treatment Effect Estimation" (ICML 2024)
 
 
+## Installing prerequisites
+```bash
+pip install -r requirements.txt
+```
+
 
 
 

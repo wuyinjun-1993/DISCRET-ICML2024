@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--program_max_len', type=int, help="The length of the program", default=4)
     # parser.add_argument('--full_gru_ode', action="store_true", default=True)
     # parser.add_argument('--is_log', action="store_true", default=False)
-    parser.add_argument('--featurization', type=str, choices=[one, two, three, four], default=one)
+    # parser.add_argument('--featurization', type=str, choices=[one, two, three, four], default=one)
     parser.add_argument('--treatment_opt', type=str, choices=["Gender", "Race"], default="Gender")
     # parser.add_argument('--no_impute',action="store_true",default = True)
     # parser.add_argument('--weighted_reward',action="store_true",default = True)
@@ -61,7 +61,7 @@ def parse_args():
     # backbone
     # fix_backbone
     parser.add_argument('--fix_backbone', action = "store_true", default = False)
-    parser.add_argument('--gpu_db', action = "store_true", default = False)
+    # parser.add_argument('--gpu_db', action = "store_true", default = False)
     parser.add_argument("--backbone", type=str, default="TransTEE", help="std of the initial phi table")
     parser.add_argument('--regression_ratio', type=float, default=0, help="std of the initial phi table")
 

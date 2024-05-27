@@ -1166,7 +1166,7 @@ def obtain_individual_predictions2(model, X, A, D, lang, data_ls, treatment_ls, 
             return torch.cat(all_treatment_pred), torch.cat(all_outcome_pred)
 
 
-def set_lang_data(lang, train_dataset, all_treatment_ids=None, gpu_db=False):
+def set_lang_data(lang, train_dataset, device, all_treatment_ids=None):
     lang.features = train_dataset.features
     lang.transformed_features = train_dataset.transformed_features
     lang.outcome_array = train_dataset.outcome_array
@@ -1180,17 +1180,17 @@ def set_lang_data(lang, train_dataset, all_treatment_ids=None, gpu_db=False):
     lang.dose_array = train_dataset.dose_array
     lang.data = train_dataset.data
     lang.dataset = train_dataset
-    if gpu_db and torch.cuda.is_available():
-        lang.features = lang.features.cuda()
-        lang.transformed_features = lang.transformed_features.cuda()
-        lang.outcome_array = lang.outcome_array.cuda()
-        lang.treatment_array = lang.treatment_array.cuda()
-        if all_treatment_ids is not None:
-            lang.transformed_treatment_array = lang.transformed_treatment_array.cuda()
-        if train_dataset.count_outcome_array is not None:
-            lang.count_outcome_array = lang.count_outcome_array.cuda()
-        if train_dataset.dose_array is not None:
-            lang.dose_array = lang.dose_array.cuda()
+    # if gpu_db and torch.cuda.is_available():
+    lang.features = lang.features.to(device)
+    lang.transformed_features = lang.transformed_features.to(device)
+    lang.outcome_array = lang.outcome_array.to(device)
+    lang.treatment_array = lang.treatment_array.to(device)
+    if all_treatment_ids is not None:
+        lang.transformed_treatment_array = lang.transformed_treatment_array.to(device)
+    if train_dataset.count_outcome_array is not None:
+        lang.count_outcome_array = lang.count_outcome_array.to(device)
+    if train_dataset.dose_array is not None:
+        lang.dose_array = lang.dose_array.to(device)
     return lang
 
 

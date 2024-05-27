@@ -41,10 +41,10 @@ import torch.nn.functional as F
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-from rl_models.enc_dec import pred_probs_key, pred_Q_key, pred_v_key, prev_prog_key, col_id_key, select_num_feat_key, col_Q_key, col_probs_key, op_key, op_id_key, col_key, outbound_key, min_Q_val, mask_atom_representation_for_op0, mask_atom_representation1, down_weight_removed_feats
+from rl_models.enc_dec import pred_probs_key, pred_Q_key, pred_v_key, prev_prog_key, col_id_key, select_num_feat_key, col_Q_key, col_probs_key, op_key, op_id_key, col_key, outbound_key, min_Q_val, further_sel_mask_key
 from rl_models.enc_dec import forward_main0_opt, create_deep_set_net_for_programs, TokenNetwork3, TokenNetwork2, determine_pred_ids_by_val, atom_to_vector_ls0_main
-from mortalty_prediction.full_experiments.trainer import process_curr_atoms, integrate_curr_program_with_prev_programs, process_curr_atoms0
-from rl_models.rl_algorithm import ReplayMemory
+# from mortalty_prediction.full_experiments.trainer import process_curr_atoms, integrate_curr_program_with_prev_programs, process_curr_atoms0
+from rl_models.rl_algorithm import ReplayMemory, process_curr_atoms0
 from image_data_utils.image_dataset import Image_Dataset
 
 from collections import namedtuple, deque
@@ -427,7 +427,7 @@ class CausalQNet_rl_all(torch.nn.Module):
         
         if not eval and program_str is not None:
         
-            next_program, next_program_str, next_all_other_pats_ls, next_program_col_ls, next_outbound_mask_ls = process_curr_atoms0(trainer, atom_ls, program, program_str, all_other_pats_ls, program_col_ls, X_pd_ls, outbound_mask_ls, other_keys=[col_id_key])
+            next_program, next_program_str, next_all_other_pats_ls, next_program_col_ls, next_outbound_mask_ls = process_curr_atoms0(trainer, atom_ls, program, program_str, all_other_pats_ls, program_col_ls, X_pd_ls, outbound_mask_ls, other_keys=[col_id_key, further_sel_mask_key])
             
             # next_all_other_pats_ls, transformed_expr_ls = self.lang.evaluate_atom_ls_ls_on_dataset_full_multi(atom_ls, all_other_pats_ls, col_key, op_key, pred_v_key)
 
@@ -1580,7 +1580,9 @@ class QNet_rl:
                 # Y = Y.to(self.device)
                 # A = A.to(self.device)
             
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
                 all_other_pats_ls = self.copy_data_in_database(origin_all_other_pats_ls)
+
                 
                 program = []
                 outbound_mask_ls = []
@@ -1800,7 +1802,7 @@ class QNet_rl:
 
                 # Y = Y.to(self.device)
                 # A = A.to(self.device)
-            
+                origin_all_other_pats_ls = [x.to(self.device) for x in origin_all_other_pats_ls]
                 all_other_pats_ls = self.copy_data_in_database(origin_all_other_pats_ls)
                 
                 program = []

@@ -869,6 +869,23 @@ class TokenNetwork3(nn.Module):
     def forward(self, x):
         return self.linear_relu_stack(x)
 
+class TokenNetwork2(nn.Module):
+    def __init__(self, input_size, latent_size):
+        super(TokenNetwork2, self).__init__()
+        self.flatten = nn.Flatten()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(input_size, latent_size),
+            nn.ReLU(),
+            # nn.Linear(latent_size, int(latent_size)),
+            # nn.ReLU(),
+            # nn.Linear(int(latent_size), num_output_classes),
+            # nn.Softmax(dim=-1),
+        )
+        # self.to(device=DEVICE)
+
+    def forward(self, x):
+        return self.linear_relu_stack(x)
+
 def create_deep_set_net_for_programs(net, ATOM_VEC_LENGTH, latent_size):
     encoder = TokenNetwork3(ATOM_VEC_LENGTH, latent_size, latent_size).to(net.device)
     # decoder = torch.nn.Linear(latent_size, ATOM_VEC_LENGTH)

@@ -65,7 +65,7 @@ def parse_args():
     # backbone
     # fix_backbone
     parser.add_argument('--fix_backbone', action = "store_true", default = False)
-    parser.add_argument('--gpu_db', action = "store_true", default = False)
+    # parser.add_argument('--gpu_db', action = "store_true", default = False)
     # parser.add_argument('--cached_model_path', type=str, default=None, help="Model to use")
     # parser.add_argument('--cached_model_suffix', type=int, default=None, help="Model to use")
 

@@ -38,7 +38,7 @@ if __name__ == "__main__":
     all_data, train_df, valid_df, test_df, lang, id_attr, outcome_attr, treatment_attr, count_outcome_attr, dose_attr, normalize_y, extra_info = load_tab_data(args)
     train_dataset, valid_dataset, test_dataset, feat_range_mappings = create_dataset(args.dataset_name, all_data, train_df, valid_df, test_df, synthetic_lang, id_attr, outcome_attr, treatment_attr, synthetic_lang.DROP_FEATS, count_outcome_attr=count_outcome_attr, dose_attr=dose_attr, normalize_y=normalize_y, extra_info=extra_info)
     
-    lang = set_lang_data(lang, train_dataset, gpu_db=args.gpu_db)
+    
     
     numeric_count  = len(train_dataset.num_cols)
         # numeric_count  = len(train_dataset.num_cols) if "num_feat" in lang.syntax else 0
@@ -51,6 +51,7 @@ if __name__ == "__main__":
     rl_config, model_config, backbone_model_config = load_configs(args,root_dir=root_dir)
     args.embed_size = model_config["hidden_size"]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    lang = set_lang_data(lang, train_dataset, device=device)
     trainer = dql_algorithm(
         train_dataset, valid_dataset, test_dataset, id_attr, outcome_attr, treatment_attr, lang, args.lr, rl_config["gamma"], args.dropout_p, feat_range_mappings, args.program_max_len, rl_config["replay_memory_capacity"], rl_config, model_config, backbone_model_config, numeric_count, category_count, category_sum_count, args, topk_act=args.topk_act,
                 batch_size = args.batch_size,

@@ -44,96 +44,96 @@ model_out_count_str="out_count"
 model_property_mappings=[{model_name_str: "SamLowe/roberta-base-go_emotions", model_out_count_str:28}]
 
 
-import openai
+# import openai
 
-import spacy
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import LatentDirichletAllocation
+# import spacy
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.decomposition import LatentDirichletAllocation
 from tqdm import tqdm
 
-def extract_topics_from_sentences(sentences, max_features=20):
-    nlp = spacy.load("en_core_web_sm")
-    processed_sentences = []
-    for sentence in tqdm(sentences):
-        doc = nlp(sentence)
-        # Remove stop words and punctuation, and lemmatize tokens
-        tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
-        processed_sentences.append(" ".join(tokens))
+# def extract_topics_from_sentences(sentences, max_features=20):
+#     nlp = spacy.load("en_core_web_sm")
+#     processed_sentences = []
+#     for sentence in tqdm(sentences):
+#         doc = nlp(sentence)
+#         # Remove stop words and punctuation, and lemmatize tokens
+#         tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
+#         processed_sentences.append(" ".join(tokens))
 
-    # Create TF-IDF vectorizer
-    tfidf_vectorizer = TfidfVectorizer(max_df=0.95, min_df=2, max_features=200, stop_words='english')
-    tfidf_matrix = tfidf_vectorizer.fit_transform(processed_sentences)
+#     # Create TF-IDF vectorizer
+#     tfidf_vectorizer = TfidfVectorizer(max_df=0.95, min_df=2, max_features=200, stop_words='english')
+#     tfidf_matrix = tfidf_vectorizer.fit_transform(processed_sentences)
 
-    # Apply Latent Dirichlet Allocation (LDA) for topic modeling
-    num_topics = max_features  # You can adjust this parameter based on your needs
-    lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
-    lda.fit(tfidf_matrix)
+#     # Apply Latent Dirichlet Allocation (LDA) for topic modeling
+#     num_topics = max_features  # You can adjust this parameter based on your needs
+#     lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
+#     lda.fit(tfidf_matrix)
 
-    # Get the dominant topic for each sentence
-    topic_results = lda.transform(tfidf_matrix)
+#     # Get the dominant topic for each sentence
+#     topic_results = lda.transform(tfidf_matrix)
     
-    topic_top_words = []
-    num_top_words =3
-    feature_names = tfidf_vectorizer.get_feature_names_out()
-    for topic_weights in lda.components_:
-        top_word_indices = topic_weights.argsort()[:-num_top_words - 1:-1]
-        top_words = [feature_names[i] for i in top_word_indices]
-        topic_top_words.append(top_words)
-    dominant_topics = [result.argmax() for result in topic_results]
-    # for i, sentence in enumerate(sentences):
-    #     print(f"Sentence {i + 1}: {sentence} --> Topic {dominant_topics[i] + 1}")
-    return topic_results, topic_top_words
+#     topic_top_words = []
+#     num_top_words =3
+#     feature_names = tfidf_vectorizer.get_feature_names_out()
+#     for topic_weights in lda.components_:
+#         top_word_indices = topic_weights.argsort()[:-num_top_words - 1:-1]
+#         top_words = [feature_names[i] for i in top_word_indices]
+#         topic_top_words.append(top_words)
+#     dominant_topics = [result.argmax() for result in topic_results]
+#     # for i, sentence in enumerate(sentences):
+#     #     print(f"Sentence {i + 1}: {sentence} --> Topic {dominant_topics[i] + 1}")
+#     return topic_results, topic_top_words
 
-def extract_cacndidate_concepts(text):
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    flag = True
-    while(flag):
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                    "role": "system",
-                    "content": "You are an expert in identifying entities in a sentence. Please give me all the entities for a given sentence and separate them with commas. Below is an example:\n\nQ: \"I'm only giving this a neutral rating because it smelled lovely but arrived crushed, leaking and unable to be used. Very nice light fragrance - non irritating which is unusual as I tend to have a lot of allergies. This is not overpowering. Has an almost romantic and nostalgic fragrance.\"\n\nA: Neutral rating, Lovely smell, Crushed, Leaking, Very nice light fragrance, Non irritating, Allergies, Overpowering, Romantic and nostalgic fragrance"
-                    },
-                    {
-                    "role": "assistant",
-                    "content": text
-                    }
-                ],
-                temperature=1,
-                max_tokens=256,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0
-                )
-            flag = False
-        except openai.error.OpenAIError as e:
-            print("Some error happened here.")
+# def extract_cacndidate_concepts(text):
+#     openai.api_key = os.getenv("OPENAI_API_KEY")
+#     flag = True
+#     while(flag):
+#         try:
+#             response = openai.ChatCompletion.create(
+#                 model="gpt-3.5-turbo",
+#                 messages=[
+#                     {
+#                     "role": "system",
+#                     "content": "You are an expert in identifying entities in a sentence. Please give me all the entities for a given sentence and separate them with commas. Below is an example:\n\nQ: \"I'm only giving this a neutral rating because it smelled lovely but arrived crushed, leaking and unable to be used. Very nice light fragrance - non irritating which is unusual as I tend to have a lot of allergies. This is not overpowering. Has an almost romantic and nostalgic fragrance.\"\n\nA: Neutral rating, Lovely smell, Crushed, Leaking, Very nice light fragrance, Non irritating, Allergies, Overpowering, Romantic and nostalgic fragrance"
+#                     },
+#                     {
+#                     "role": "assistant",
+#                     "content": text
+#                     }
+#                 ],
+#                 temperature=1,
+#                 max_tokens=256,
+#                 top_p=1,
+#                 frequency_penalty=0,
+#                 presence_penalty=0
+#                 )
+#             flag = False
+#         except openai.error.OpenAIError as e:
+#             print("Some error happened here.")
     
     
     
-    concepts = response.choices[0]["message"]["content"].split(",")
-    concepts = [concept.strip() for concept in concepts]
-    return concepts
+#     concepts = response.choices[0]["message"]["content"].split(",")
+#     concepts = [concept.strip() for concept in concepts]
+#     return concepts
 
-def get_embedding(concept_words):
-	# Embed a line of text
-	response = openai.Embedding.create(
-    	model= "text-embedding-ada-002",
-    	input=concept_words
-	)
-	# Extract the AI output embedding as a list of floats
-	embedding = response["data"][0]["embedding"]
+# def get_embedding(concept_words):
+# 	# Embed a line of text
+# 	response = openai.Embedding.create(
+#     	model= "text-embedding-ada-002",
+#     	input=concept_words
+# 	)
+# 	# Extract the AI output embedding as a list of floats
+# 	embedding = response["data"][0]["embedding"]
     
-	return embedding
+# 	return embedding
 
-def get_embeddings_all(concept_words_ls):
-    embedding_mappings = dict()
-    for concept_words in tqdm(concept_words_ls):
-        embedding = get_embedding(concept_words)
-        embedding_mappings[concept_words] = embedding   
-    return embedding_mappings
+# def get_embeddings_all(concept_words_ls):
+#     embedding_mappings = dict()
+#     for concept_words in tqdm(concept_words_ls):
+#         embedding = get_embedding(concept_words)
+#         embedding_mappings[concept_words] = embedding   
+#     return embedding_mappings
 
 def populate_text_attrs(text):
     logits_ls = []    
@@ -217,18 +217,18 @@ def obtain_bow_features(text_ls, df, outcome_attr, classification, ngram=1, max_
 
 
 
-def extract_candidate_concepts_all(text_ls):
-    all_concepts = []
-    all_concept_ls = []
-    for text in tqdm(text_ls):
-        # sub_text_ls = text.strip().split(". ")
-        # for sub_text in sub_text_ls:
-        #     sub_sub_text_ls = sub_text.split("\n")
-        #     for sub_sub_text in sub_sub_text_ls:
-            curr_concept_ls = extract_cacndidate_concepts(text.strip())
-            all_concepts.extend(curr_concept_ls)
-            all_concept_ls.append(curr_concept_ls)
-    return all_concepts, all_concept_ls
+# def extract_candidate_concepts_all(text_ls):
+#     all_concepts = []
+#     all_concept_ls = []
+#     for text in tqdm(text_ls):
+#         # sub_text_ls = text.strip().split(". ")
+#         # for sub_text in sub_text_ls:
+#         #     sub_sub_text_ls = sub_text.split("\n")
+#         #     for sub_sub_text in sub_sub_text_ls:
+#             curr_concept_ls = extract_cacndidate_concepts(text.strip())
+#             all_concepts.extend(curr_concept_ls)
+#             all_concept_ls.append(curr_concept_ls)
+#     return all_concepts, all_concept_ls
 
 def cluster_concept_embeddings(embedding_ls, cluster_count = 50):
     embedding_array = torch.tensor(embedding_ls)
@@ -276,54 +276,54 @@ def transform_all_concept_to_ls(text_ls, all_concepts):
         all_concepts_ls.append(curr_concept_ls)
     return all_concepts_ls
 
-def obtain_concept_features(log_path, text_ls, df, cluster_count=50):
+# def obtain_concept_features(log_path, text_ls, df, cluster_count=50):
     
-    cached_concept_file = os.path.join(log_path, "all_concepts")
-    cached_concept_ls_file = os.path.join(log_path, "all_concepts_ls")
-    cached_word_to_embedding_file = os.path.join(log_path, "word_to_embedding_mappings")
+#     cached_concept_file = os.path.join(log_path, "all_concepts")
+#     cached_concept_ls_file = os.path.join(log_path, "all_concepts_ls")
+#     cached_word_to_embedding_file = os.path.join(log_path, "word_to_embedding_mappings")
 
-    if os.path.exists(cached_concept_file) and os.path.exists(cached_concept_ls_file):
-        with open(os.path.join(log_path, "all_concepts"), "rb") as f:
-            all_concepts = pickle.load(f) 
-        try:   
-            with open(os.path.join(log_path, "all_concepts_ls"), "rb") as f:
-                all_concept_ls = pickle.load(f)
-        except:
-            all_concept_ls = transform_all_concept_to_ls(text_ls, all_concepts)
-            with open(os.path.join(log_path, "all_concepts_ls"), "wb") as f:
-                pickle.dump(all_concept_ls, f)
+#     if os.path.exists(cached_concept_file) and os.path.exists(cached_concept_ls_file):
+#         with open(os.path.join(log_path, "all_concepts"), "rb") as f:
+#             all_concepts = pickle.load(f) 
+#         try:   
+#             with open(os.path.join(log_path, "all_concepts_ls"), "rb") as f:
+#                 all_concept_ls = pickle.load(f)
+#         except:
+#             all_concept_ls = transform_all_concept_to_ls(text_ls, all_concepts)
+#             with open(os.path.join(log_path, "all_concepts_ls"), "wb") as f:
+#                 pickle.dump(all_concept_ls, f)
     
-    else:
-        all_concepts, all_concept_ls = extract_candidate_concepts_all(text_ls)
-        with open(os.path.join(log_path, "all_concepts"), "wb") as f:
-            pickle.dump(all_concepts, f)
-        with open(os.path.join(log_path, "all_concepts_ls"), "wb") as f:
-            pickle.dump(all_concept_ls, f)
+#     else:
+#         all_concepts, all_concept_ls = extract_candidate_concepts_all(text_ls)
+#         with open(os.path.join(log_path, "all_concepts"), "wb") as f:
+#             pickle.dump(all_concepts, f)
+#         with open(os.path.join(log_path, "all_concepts_ls"), "wb") as f:
+#             pickle.dump(all_concept_ls, f)
 
-    if os.path.exists(cached_word_to_embedding_file):
-        with open(os.path.join(log_path, "word_to_embedding_mappings"), "rb") as f:
-            word_to_embedding_mappings = pickle.load(f)    
-    else:
-        word_to_embedding_mappings = get_embeddings_all(all_concepts)
-        with open(os.path.join(log_path, "word_to_embedding_mappings"), "wb") as f:
-            pickle.dump(word_to_embedding_mappings, f)
+#     if os.path.exists(cached_word_to_embedding_file):
+#         with open(os.path.join(log_path, "word_to_embedding_mappings"), "rb") as f:
+#             word_to_embedding_mappings = pickle.load(f)    
+#     else:
+#         word_to_embedding_mappings = get_embeddings_all(all_concepts)
+#         with open(os.path.join(log_path, "word_to_embedding_mappings"), "wb") as f:
+#             pickle.dump(word_to_embedding_mappings, f)
     
-    embedding_ls = [word_to_embedding_mappings[concept] for concept in all_concepts]
-    assigned_cluster_ids, closet_sample_ids = cluster_concept_embeddings(embedding_ls, cluster_count=cluster_count)
-    word_to_cluster_id_mappings = {concept: cluster_id for concept, cluster_id in zip(all_concepts, assigned_cluster_ids)}
-    all_features = np.zeros((len(text_ls), cluster_count))
-    for text_id in range(len(text_ls)):
-        curr_concept_ls = all_concept_ls[text_id]
-        for concept in curr_concept_ls:
-            all_features[text_id, word_to_cluster_id_mappings[concept]] += 1
+#     embedding_ls = [word_to_embedding_mappings[concept] for concept in all_concepts]
+#     assigned_cluster_ids, closet_sample_ids = cluster_concept_embeddings(embedding_ls, cluster_count=cluster_count)
+#     word_to_cluster_id_mappings = {concept: cluster_id for concept, cluster_id in zip(all_concepts, assigned_cluster_ids)}
+#     all_features = np.zeros((len(text_ls), cluster_count))
+#     for text_id in range(len(text_ls)):
+#         curr_concept_ls = all_concept_ls[text_id]
+#         for concept in curr_concept_ls:
+#             all_features[text_id, word_to_cluster_id_mappings[concept]] += 1
     
-    concept_name_ls = [all_concepts[k] for k in closet_sample_ids]
-    df[concept_name_ls] = all_features
+#     concept_name_ls = [all_concepts[k] for k in closet_sample_ids]
+#     df[concept_name_ls] = all_features
     
-    return df
+#     return df
     
     
-    # for sub_concept_ls in all_concept_ls:
+#     # for sub_concept_ls in all_concept_ls:
         
     
 
@@ -341,61 +341,61 @@ def convert_text_to_features(args, df, text_attr, treatment_attr, outcome_attr):
         data_path = os.path.join(args.data_path, args.treatment_opt)
         os.makedirs(data_path, exist_ok=True)
     
-    if args.featurization == one:
-        if not os.path.exists(os.path.join(data_path, 'populated_df.csv')):
+    # if args.featurization == one:
+    if not os.path.exists(os.path.join(data_path, 'populated_df.csv')):
+    
+        # df = populate_text_attrs_all(df[text_attr], df)
+        df = obtain_bow_features(list(df[text_attr]), df, outcome_attr, args.classification)
         
-            # df = populate_text_attrs_all(df[text_attr], df)
-            df = obtain_bow_features(list(df[text_attr]), df, outcome_attr, args.classification)
-            
-            df.to_csv(os.path.join(data_path, 'populated_df.csv'))
-        else:
-            df = pd.read_csv(os.path.join(data_path, 'populated_df.csv'))
-    elif args.featurization == two:
-        if not os.path.exists(os.path.join(data_path, 'populated_df_2.csv')):
+        df.to_csv(os.path.join(data_path, 'populated_df.csv'))
+    else:
+        df = pd.read_csv(os.path.join(data_path, 'populated_df.csv'))
+    # elif args.featurization == two:
+    #     if not os.path.exists(os.path.join(data_path, 'populated_df_2.csv')):
         
-            # df = populate_text_attrs_all_2(df[text_attr], df)
-            cache_path = os.path.join(data_path, args.treatment_opt.lower())
-            os.makedirs(cache_path, exist_ok=True)
+    #         # df = populate_text_attrs_all_2(df[text_attr], df)
+    #         cache_path = os.path.join(data_path, args.treatment_opt.lower())
+    #         os.makedirs(cache_path, exist_ok=True)
             
-            df = obtain_concept_features(cache_path, list(df[text_attr]), df)
+    #         df = obtain_concept_features(cache_path, list(df[text_attr]), df)
             
-            df.to_csv(os.path.join(data_path, 'populated_df_2.csv'))
-        else:
-            df = pd.read_csv(os.path.join(data_path, 'populated_df_2.csv'))
-    elif args.featurization == three:
+    #         df.to_csv(os.path.join(data_path, 'populated_df_2.csv'))
+    #     else:
+    #         df = pd.read_csv(os.path.join(data_path, 'populated_df_2.csv'))
+    # elif args.featurization == three:
         
-        if not os.path.exists(os.path.join(data_path, 'populated_df_3.csv')):
+    #     if not os.path.exists(os.path.join(data_path, 'populated_df_3.csv')):
             
-            if args.dataset_name == "music":
-            #     mod = QNet(df[text_attr], df[treatment_attr], df['C'], df[outcome_attr],  batch_size = 4, # batch size for training
-            #                 a_weight = 0.1,  # loss weight for A ~ text
-            #                 y_weight = 0.1,  # loss weight for Y ~ A + text
-            #                 mlm_weight=1.0,  # loss weight for DistlBert
-            #                 modeldir=args.log_folder) # directory for saving the best model
+    #         if args.dataset_name == "music":
+    #         #     mod = QNet(df[text_attr], df[treatment_attr], df['C'], df[outcome_attr],  batch_size = 4, # batch size for training
+    #         #                 a_weight = 0.1,  # loss weight for A ~ text
+    #         #                 y_weight = 0.1,  # loss weight for Y ~ A + text
+    #         #                 mlm_weight=1.0,  # loss weight for DistlBert
+    #         #                 modeldir=args.log_folder) # directory for saving the best model
 
-            #     load_pretrained_backbone_models(mod, os.path.join(args.log_folder, "_bestmod.pt"))
-            #     bert_model = mod.model.distilbert
-                bert_model = DistilBertModel.from_pretrained('distilbert-base-uncased')
+    #         #     load_pretrained_backbone_models(mod, os.path.join(args.log_folder, "_bestmod.pt"))
+    #         #     bert_model = mod.model.distilbert
+    #             bert_model = DistilBertModel.from_pretrained('distilbert-base-uncased')
 
-            else:
+    #         else:
                 
-                bert_model = obtain_pretrained_model_eeec()   
-            if torch.cuda.is_available():
-                bert_model = bert_model.cuda()
-            # all_text, df, treatment_attr, outcome_attr, mod, device
-            df = populate_text_attrs_all_3(args.dataset_name, list(df[text_attr]), df, treatment_attr, outcome_attr, text_attr, tokenizer, bert_model, device = torch.device("cuda" if torch.cuda.is_available() else "cpu"), max_features=20)
+    #             bert_model = obtain_pretrained_model_eeec()   
+    #         if torch.cuda.is_available():
+    #             bert_model = bert_model.cuda()
+    #         # all_text, df, treatment_attr, outcome_attr, mod, device
+    #         df = populate_text_attrs_all_3(args.dataset_name, list(df[text_attr]), df, treatment_attr, outcome_attr, text_attr, tokenizer, bert_model, device = torch.device("cuda" if torch.cuda.is_available() else "cpu"), max_features=20)
             
-            df.to_csv(os.path.join(data_path, 'populated_df_3.csv'))
-        else:
-            df = pd.read_csv(os.path.join(data_path, 'populated_df_3.csv'))
-    elif args.featurization == four:
-        if not os.path.exists(os.path.join(data_path, 'populated_df_4.csv')):
-            topic_weight, topics = extract_topics_from_sentences(list(df[text_attr]))
-            topic_clns = ["topic_" + str(k) for k in range(len(topics))]
-            df[topic_clns] = pd.DataFrame(topic_weight)
-            df.to_csv(os.path.join(data_path, 'populated_df_4.csv'))
-        else:
-            df = pd.read_csv(os.path.join(data_path, 'populated_df_4.csv'))
+    #         df.to_csv(os.path.join(data_path, 'populated_df_3.csv'))
+    #     else:
+    #         df = pd.read_csv(os.path.join(data_path, 'populated_df_3.csv'))
+    # elif args.featurization == four:
+    #     if not os.path.exists(os.path.join(data_path, 'populated_df_4.csv')):
+    #         topic_weight, topics = extract_topics_from_sentences(list(df[text_attr]))
+    #         topic_clns = ["topic_" + str(k) for k in range(len(topics))]
+    #         df[topic_clns] = pd.DataFrame(topic_weight)
+    #         df.to_csv(os.path.join(data_path, 'populated_df_4.csv'))
+    #     else:
+    #         df = pd.read_csv(os.path.join(data_path, 'populated_df_4.csv'))
         
 
     return df, tokenizer

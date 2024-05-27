@@ -65,10 +65,10 @@ def integrate_curr_program_with_prev_programs(trainer, next_program, curr_vec_ls
 
 def process_curr_atoms0(trainer, atom_ls, program, program_str, all_other_pats_ls, program_col_ls, X_pd_ls, outbound_mask_ls, other_keys=None):
     # process = psutil.Process()
-    if not trainer.do_medical:    
-        curr_atom_str_ls = trainer.lang.atom_to_str_ls_full(X_pd_ls, atom_ls, col_key, op_key, pred_v_key, trainer.feat_range_mappings, trainer.train_dataset.cat_id_unique_vals_mappings, other_keys=other_keys)
-    else:
-        curr_atom_str_ls = trainer.lang.atom_to_str_ls_full_medical(atom_ls, col_key, range_key, trainer.feat_range_mappings)
+    # if not trainer.do_medical:    
+    curr_atom_str_ls = trainer.lang.atom_to_str_ls_full(X_pd_ls, atom_ls, col_key, op_key, pred_v_key, trainer.feat_range_mappings, trainer.train_dataset.cat_id_unique_vals_mappings, other_keys=other_keys)
+    # else:
+    #     curr_atom_str_ls = trainer.lang.atom_to_str_ls_full_medical(atom_ls, col_key, range_key, trainer.feat_range_mappings)
     # outbound_mask_ls = atom_ls[outbound_key]
     
     next_program = program.copy()
