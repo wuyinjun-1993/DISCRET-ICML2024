@@ -7,6 +7,10 @@ Code for the paper:
 pip install -r requirements.txt
 ```
 
+# Run experiments
+
+
+For experiments on tabular dataset, go to "treatment\_prediction/tabular" folder. For experiments on NLP dataset, go to "treatment\_prediction/nlp" folder. For experiments on image datasets, go to "treatment\_prediction/image" folder
 
 
 

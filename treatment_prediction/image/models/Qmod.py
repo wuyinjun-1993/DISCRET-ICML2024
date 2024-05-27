@@ -434,10 +434,10 @@ class CausalQNet_rl_all(torch.nn.Module):
             # treatment_pred, outcome_pred = self.obtain_predictions(next_all_other_pats_ls, A, self.id_attr, self.outcome_attr, self.treatment_attr, test=test)
             topk=3
 
-            treatment_pred, outcome_pred = obtain_predictions2(self, X_pd_full, A, None, trainer.lang, next_all_other_pats_ls, A, None, self.id_attr, self.outcome_attr, self.treatment_attr, topk=topk, classification=classification, method_two=method_two, method_three=method_three)
+            treatment_pred, outcome_pred, _ = obtain_predictions2(self, X_pd_full, A, None, trainer.lang, next_all_other_pats_ls, A, None, self.id_attr, self.outcome_attr, self.treatment_attr, topk=topk, classification=classification, method_two=method_two, method_three=method_three)
             
             if compute_ate:
-                pos_outcome, neg_outcome = obtain_predictions2(self, X_pd_full, A, None, trainer.lang, next_all_other_pats_ls, A, None, self.id_attr, self.outcome_attr, self.treatment_attr, topk=topk, classification=classification, compute_ate=True, method_two=method_two, method_three=method_three)
+                pos_outcome, neg_outcome, _ = obtain_predictions2(self, X_pd_full, A, None, trainer.lang, next_all_other_pats_ls, A, None, self.id_attr, self.outcome_attr, self.treatment_attr, topk=topk, classification=classification, compute_ate=True, method_two=method_two, method_three=method_three)
             
             ind_treatment_pred, ind_outcome_pred = obtain_individual_predictions2(self, X_pd_full, A, None, trainer.lang, next_all_other_pats_ls, A, None, self.id_attr, self.outcome_attr, self.treatment_attr, topk=topk, classification=classification, method_two=method_two, method_three=method_three)
             
@@ -1610,7 +1610,7 @@ class QNet_rl:
                     if done:
                         outcome_pred, pos_pred, neg_pred = outcome_pred             
                         all_treatment_ls.append(treatment_pred)
-                        all_outcome_ls.append(outcome_pred)
+                        all_outcome_ls.append(outcome_pred.cpu())
                         all_pos_outcome_pred_ls.append(pos_pred)
                         all_neg_outcome_pred_ls.append(neg_pred)
                         
@@ -1656,7 +1656,7 @@ class QNet_rl:
                         all_neg_outcome_pred_tensor = transform_outcome_by_rescale_back(test_loader.dataset, all_neg_outcome_pred_tensor)
             all_treatment_arr_np = all_gt_treatment_tensor.view(-1).numpy()
             
-            all_pred_treatment_arr_full_d = (all_treatment_pred_tensor > 0.5).type(torch.long).view(-1).numpy()
+            all_pred_treatment_arr_full_d = (all_treatment_pred_tensor > 0.5).cpu().type(torch.long).view(-1).numpy()
             treatment_acc = np.mean(all_treatment_arr_np == all_pred_treatment_arr_full_d)
             if len(np.unique(all_treatment_arr_np)) <= 1:
                 treatment_auc = 0
